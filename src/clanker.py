@@ -53,7 +53,7 @@ SECRETS = load_jsonc('secrets.jsonc').get(PROFILE_NAME, {})
 # Initialize the Discord Token and System Prompt based on the profile
 # Retrieve the token from the secrets file
 DISCORD_TOKEN = SECRETS.get("discordToken")
-PERSONALITY_PROMPT = PROFILE_CONFIG.get("personalityPrompt", "You complains-of-missing personality prompt. All you will do is complain about missing personality prompt.")
+PERSONALITY_PROMPT = PROFILE_CONFIG.get("personalityPrompt", "You are complains-of-missing-personality-prompt. All you will do is complain about missing personality prompt.")
 
 # Define the system prompt for the LLM, combining personality and context
 SYSTEM_PROMPT = f"""
@@ -93,16 +93,6 @@ def init_db():
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS channels (
             channel_id INTEGER PRIMARY KEY,
-            is_enabled INTEGER DEFAULT 0,
-            guild_id INTEGER,
-            FOREIGN KEY (guild_id) REFERENCES guilds(guild_id)
-        )
-    ''')
-
-    # Create guilds table to track guild-level settings
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS guilds (
-            guild_id INTEGER PRIMARY KEY,
             is_enabled INTEGER DEFAULT 0
         )
     ''')
@@ -317,30 +307,9 @@ async def set_channel_enabled(channel, enabled):
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute('''
-        INSERT OR REPLACE INTO channels (channel_id, is_enabled, guild_id)
-        VALUES (?, ?, ?)
-    ''', (channel.id, 1 if enabled else 0, channel.guild.id if channel.guild else None))
-    conn.commit()
-    conn.close()
-    return enabled
-
-async def is_guild_enabled(guild):
-    """Check if a guild is enabled for Clanker."""
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute('SELECT is_enabled FROM guilds WHERE guild_id = ?', (guild.id,))
-    row = cursor.fetchone()
-    conn.close()
-    return row is not None and row['is_enabled'] == 1
-
-async def set_guild_enabled(guild, enabled):
-    """Enable or disable a guild."""
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute('''
-        INSERT OR REPLACE INTO guilds (guild_id, is_enabled)
+        INSERT OR REPLACE INTO channels (channel_id, is_enabled)
         VALUES (?, ?)
-    ''', (guild.id, 1 if enabled else 0))
+    ''', (channel.id, 1 if enabled else 0))
     conn.commit()
     conn.close()
     return enabled
@@ -453,7 +422,7 @@ async def enable(interaction, count: int = None):
 
 @client.tree.command(name='enable', description='Enable Clanker in a channel')
 async def enable(interaction, channel: discord.TextChannel = None):
-    """Enable Clanker in a channel (or all channels in the guild)."""
+    """Enable Clanker in a channel"""
     if channel is None:
         channel = interaction.channel
     
