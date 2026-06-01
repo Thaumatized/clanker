@@ -16,7 +16,6 @@ load_dotenv()
 # Define available models
 AVAILABLE_MODELS = []
 # Initialize the current model name
-CURRENT_MODEL = 'joe-speedboat/Gemma-4-Uncensored-HauhauCS-Aggressive:e4b'
 TARGET_HISTORY_LENGTH = 25
 ACTIVE_HISTORY_LENGTH = 25
 
@@ -46,6 +45,8 @@ PROFILE_CONFIG = load_jsonc(PROFILE_CONFIG_PATH)
 
 # Load the GIF configuration
 CONFIG = load_jsonc('config.jsonc')
+AVAILABLE_MODELS = CONFIG.get("models", [])
+CURRENT_MODEL = AVAILABLE_MODELS[1]
 
 # Load the secrets file to get the Discord token
 SECRETS = load_jsonc('secrets.jsonc').get(PROFILE_NAME, {})
