@@ -26,7 +26,7 @@ RESPOND_TO_BOTS = False
 
 # --- Profile Loading ---
 PROFILE_NAME = os.environ.get('PROFILE', 'clanker')
-PROFILE_CONFIG_PATH = f'{PROFILE_NAME}.jsonc'
+PROFILE_CONFIG_PATH = f'profiles/{PROFILE_NAME}.jsonc'
 
 # Load configuration from JSON file
 # NOTE: Using json5 to correctly handle JSONC format (with comments).

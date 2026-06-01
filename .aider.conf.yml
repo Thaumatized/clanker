@@ -8,9 +8,10 @@ dirty-commits: false
 # readonly files
 read:
   - "secrets.jsonc"
-  - "profiles/*"
+  - "profiles/"
 
+# files to edit
 file:
-  - "src/*"
+  - "src/clanker.py"
   - "requirements.txt"
   - "README.md"

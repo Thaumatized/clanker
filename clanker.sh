@@ -1,2 +1,2 @@
 source venv/bin/activate
-python clanker.py
+python src/clanker.py
