@@ -70,10 +70,11 @@ if not DISCORD_TOKEN:
     raise ValueError(f"No Discord token found for profile '{PROFILE_NAME}'! Please check your secrets configuration.")
 
 # Database setup
-DB_PATH = 'clanker.db'
+DB_PATH = f'databases/{PROFILE_NAME}.sqlite'
 
 def get_db_connection():
     """Get a database connection."""
+    os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     return conn

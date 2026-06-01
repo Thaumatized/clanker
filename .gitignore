@@ -1,6 +1,5 @@
 venv
 .aider*
 
-clanker.db
+databases
 secrets.jsonc
-
