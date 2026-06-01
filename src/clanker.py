@@ -92,7 +92,8 @@ def init_db():
         CREATE TABLE IF NOT EXISTS channels (
             channel_id INTEGER PRIMARY KEY,
             is_enabled INTEGER DEFAULT 0,
-            history_length INTEGER DEFAULT {DEFAULTS["history_length"]}
+            history_length INTEGER DEFAULT {DEFAULTS["history_length"]},
+            whack_message_id INTEGER DEFAULT 0
         )
     ''')
 
@@ -120,6 +121,30 @@ init_shared_db()
 
 # --- Bot State Management ---
 
+def get_whack(channel_id: int) -> bool:
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('SELECT whack_message_id FROM channels WHERE channel_id = ?', (channel_id,))
+    row = cursor.fetchone()
+    conn.close()
+    
+    if row:
+        return row['whack_message_id']
+    # Default state if not found
+    return 0
+
+def set_whack(channel_id: int, whack_message_id: int):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('''
+        INSERT INTO channels (channel_id, whack_message_id)
+        VALUES (?, ?)
+        ON CONFLICT(channel_id) DO UPDATE SET
+            whack_message_id = excluded.whack_message_id
+    ''', (channel_id, whack_message_id))
+    conn.commit()
+    conn.close()
+
 def get_history_length(channel_id: int) -> bool:
     """Reads the bot-to-bot response state for a specific channel from the profile database."""
     conn = get_db_connection()
@@ -138,8 +163,10 @@ def set_history_length(channel_id: int, history_length: bool):
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute('''
-        INSERT OR REPLACE INTO channels (channel_id, history_length)
+        INSERT INTO channels (channel_id, history_length)
         VALUES (?, ?)
+        ON CONFLICT(channel_id) DO UPDATE SET
+            history_length = excluded.history_length
     ''', (channel_id, history_length))
     conn.commit()
     conn.close()
@@ -162,8 +189,10 @@ def set_bot_to_bot(channel_id: int, enabled: bool):
     conn = get_shared_db_connection()
     cursor = conn.cursor()
     cursor.execute('''
-        INSERT OR REPLACE INTO channels (channel_id, bot_to_bot_enabled)
+        INSERT INTO channels (channel_id, bot_to_bot_enabled)
         VALUES (?, ?)
+        ON CONFLICT(channel_id) DO UPDATE SET
+            bot_to_bot_enabled = excluded.bot_to_bot_enabled
     ''', (channel_id, 1 if enabled else 0))
     conn.commit()
     conn.close()
@@ -251,15 +280,24 @@ def format_discord_message_to_ollama(msg):
         }
 
 
-async def get_channel_history_from_discord(channel, max_messages):
+async def get_channel_history_from_discord(channel):
     """
-    Fetches the last X messages from the Discord channel and renders them.
+    Fetches messages from the Discord channel starting from the newest,
+    stopping once we reach the 'whack' message ID (inclusive/exclusive logic applied).
     """
     history_messages = []
 
     try:
-        # Fetch messages from Discord API
-        async for msg in channel.history(limit=max_messages, oldest_first=False):
+        whack_id = get_whack(channel.id)
+
+        # Fetch messages from newest to oldest
+        async for msg in channel.history(
+            limit=get_history_length(channel.id), 
+            oldest_first=False
+        ):            
+            if whack_id is not None and msg.id <= whack_id:
+                break
+
             # Skip system messages or empty messages
             if not msg.content.strip():
                 continue
@@ -268,6 +306,7 @@ async def get_channel_history_from_discord(channel, max_messages):
             formatted_msg = format_discord_message_to_ollama(msg)
             history_messages.append(formatted_msg)
         
+        # Reverse to get chronological order (oldest -> newest)
         history_messages.reverse()
         
     except discord.Forbidden:
@@ -343,7 +382,7 @@ async def get_llama_response(channel):
     """
     try:
         # Fetch recent history from Discord
-        history = await get_channel_history_from_discord(channel, get_history_length(channel.id))
+        history = await get_channel_history_from_discord(channel)
 
         # Build initial message list
         messages = build_ollama_messages(SYSTEM_PROMPT, history)
@@ -474,15 +513,9 @@ async def disable(interaction, channel: discord.TextChannel = None):
 
 @client.tree.command(name='whack', description='Clear clankers memory by slowly increasing historylength from 1')
 async def whack(interaction: discord.Interaction):
+    response_message = await interaction.response.send_message(f"History whacked.\n{getGif('whack')}", ephemeral=False)
     
-    channel = interaction.channel
-    
-    # Save the history length change to the channel's profile DB
-    # Note: We don't have a dedicated function for this, so we'll just update the global variable and inform the user.
-    # For simplicity, we assume the user wants the change to apply immediately.
-    
-    gif_link = getGif("whack")
-    await interaction.response.send_message(f"History whacked.\n{gif_link}", ephemeral=False)
+    set_whack(interaction.channel_id, response_message.id)
 
 
 @client.tree.command(name='dumb', description='Change Clanker\'s model to a lower intelligence model.')
