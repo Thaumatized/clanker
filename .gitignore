@@ -1,5 +1,6 @@
 venv
 .aider*
+!.aider.conf.yml
 
 databases
 secrets.jsonc

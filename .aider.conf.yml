@@ -1,0 +1,16 @@
+# Model settings
+model: ollama/gemma4:e4b
+
+# Git settings
+auto-commits: false
+dirty-commits: false
+
+# readonly files
+read:
+  - "secrets.jsonc"
+  - "profiles/*"
+
+file:
+  - "src/*"
+  - "requirements.txt"
+  - "README.md"
