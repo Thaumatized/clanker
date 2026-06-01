@@ -493,10 +493,12 @@ async def toggle_bot_to_bot(interaction):
 
     if RESPOND_TO_BOTS:
         status_message = "✅ Clanker is now configured to respond to messages from other bots (Bot-to-Bot Mode)."
+        gif_link = getGif("botToBotEnable")
     else:
         status_message = "🚫 Clanker is now configured to only respond to human users (Human-Only Mode)."
+        gif_link = getGif("botToBotDisable")
         
-    await interaction.response.send_message(status_message, ephemeral=False)
+    await interaction.response.send_message(f"{status_message}\n{gif_link}", ephemeral=False)
 
 
 # --- Message Event Handler ---

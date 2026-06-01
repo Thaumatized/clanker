@@ -10,17 +10,18 @@
       "https://tenor.com/view/scrap-robotics-ftdh2-find-the-doge-heads-2-find-the-doge-heads-gif-12477929749404485952", // Clanker phone
       "https://tenor.com/view/clanker-clankers-ai-robot-gif-5561694460311194172", // Running trough glass
       "https://tenor.com/view/robot-activated-valorant-robot-turned-on-robot-booted-up-riot-games-gif-27413763", // Red eye
-      "https://tenor.com/view/bh187-star-wars-droids-droid-army-activate-gif-19623080", // battle droid activation
       "https://tenor.com/view/abell46s-reface-robot-bot-bailando-gif-18911114", // Bender dance
       "https://tenor.com/view/bella-eye-gif-12534210074486385531", // cat server robot
       "https://tenor.com/view/general-grievous-star-wars-clone-wars-seperatists-villain-gif-24892836", // general grievious many sabers
       "https://tenor.com/view/windows-starten-starting-windows-windows-7-windows-starting-home-premium-gif-4114252130509551445", // windows boots
+      "https://tenor.com/view/battledroid-droide-starwars-levantarse-despertarse-gif-10772637", // battle droid activating
+      "https://tenor.com/view/clanka-gif-25247043", // battle droid rogered
     ],
     "disable": [
       "https://tenor.com/view/clanka-clanker-droid-gta-gif-2671980220553869597", // GTA V Clankaaaaa
       "https://tenor.com/view/star-wars-star-wars-meme-meme-commander-cody-stfu-gif-5309816589250938071", // Shooting droids
       "https://tenor.com/view/robot-clanker-kung-fu-martial-arts-gif-8383749532773977149", // Kickflip
-      "https://tenor.com/view/robot-dies-explodes-shatters-race-gif-15341837348460387013", // robot falls and disintergrates
+      "https://tenor.com/view/robot-dies-high-voltage-toys-chinafake-gif-16262237045544160699", // robot falls and disintergrates
       "https://tenor.com/view/mountain-metal-gromit-wallace-wallace-and-gromit-gif-15790724", // wallace and gromit cheeze robot
       "https://tenor.com/view/pc-computer-shutting-down-off-windows-computer-gif-17192330", // windows 10 shutting down
     ],
@@ -31,6 +32,7 @@
       "https://tenor.com/view/robots-the-mitchells-vs-the-machines-trailer-watching-car-hit-by-the-car-gif-21068049", // The Mitchells vs. the Machines car crash
       "https://tenor.com/view/grievousbonk-grievous-bonk-starwars-clonewars-gif-21150454", // general grievious bonk
       "https://tenor.com/view/futurama-leela-bender-punch-slap-gif-976590848628345426", // futurama slap
+      "https://tenor.com/view/chinese-robot-syncope-gif-20000224", // Falling down an escalator
     ],
     "smart": [
       "https://tenor.com/view/tokusatsu-winspector-robot-reading-read-gif-17018066", // robot at library
@@ -38,12 +40,32 @@
       "https://tenor.com/view/pengu-pudgy-penguin-pudgypenguins-ai-gif-12922732872775319926", // Pingwing AI brain
       "https://tenor.com/view/verficacion-gif-21322574", // robot arm captha
       "https://tenor.com/view/klei-oni-oxygen-not-included-dupe-rowan-gif-6479891577433792744", // Button
+      "https://tenor.com/view/patrick-patrick-star-spongebob-spongebob-meme-dumb-gif-5210327410085801296", // patric star brain plugin
+      "https://tenor.com/view/brain-brain-meme-big-brain-big-brain-meme-big-brain-time-gif-2441110471562975014", // Blue glowing brain thing
+      "https://tenor.com/view/squidward-spongebob-brain-remember-smart-gif-23868993", // Squidward brain trash reverse
     ],
     "dumb": [
       "https://tenor.com/view/sad-crying-tears-simpsons-short-circuit-gif-6983203869150131029", // Simpson robot melt
       "https://tenor.com/view/tic-tac-toe-meme-robot-cheating-cheat-gif-16983247813571426973", // Tic tac toe
       "https://tenor.com/view/idiot-robots-robot-mitchells-vs-the-machines-the-mitchells-vs-the-machines-gif-25258889", // The Mitchells vs. the Machines idiot
       "https://tenor.com/view/captcha-robot-gif-21874274", // captha heart
+      "https://tenor.com/view/squidward-weekend-brain-goodbye-brain-trash-gif-5709446", // Squidward brain trash
+      "https://tenor.com/view/so-dumb-brain-try-again-bad-take-dumb-gif-16636960554958150216", // penguin brain trash
+      "https://tenor.com/view/trabalho-gif-6626495512295528109", // robot goalie falls down
+    ],
+    "botToBotEnable": [
+      "https://tenor.com/view/robot-attack-saturday-night-live-help-me-evil-robot-attacking-robot-gif-7014492655763242847", //old SNL robot attack
+      "https://tenor.com/view/robot-robots-bot-bots-robot-army-gif-19992580", // blue robot march
+      "https://tenor.com/view/bh187-star-wars-droids-droid-army-activate-gif-19623080", // battle droid activation en mass
+      "https://tenor.com/view/star-wars-the-phantom-menace-droid-army-naboo-gif-15588671", // battle droid march
+      "https://tenor.com/view/lego-star-wars-star-wars-battle-droids-dancing-dance-gif-16354268", // lego battle droid dance
+      "https://tenor.com/view/generous-robots-space-robots-gr-sr-one-of-us-robots-gif-26186863", // one of us chant
+    ],
+    "botToBotDisable": [
+      "https://tenor.com/view/i-feel-sad-the-mitchells-vs-the-machines-im-gonna-cry-a-tear-in-my-eye-mitchells-vs-machines-gif-21432321", //The Mitchells vs. the Machines drwaing cry face
+      "https://tenor.com/view/do-you-have-an-off-button-three-robots-love-death-and-robots-how-do-i-turn-you-off-shut-up-gif-21999490", // Love, Death and Robots do you have an off button
+      "https://tenor.com/view/murder-drones-serial-designation-n-cute-shy-nervous-gif-27007877", // Murder droins point fingers together
+
     ],
   },
 }
