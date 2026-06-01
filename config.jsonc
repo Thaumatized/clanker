@@ -1,0 +1,49 @@
+{
+  "models": [
+    "llama2-uncensored",
+    "joe-speedboat/Gemma-4-Uncensored-HauhauCS-Aggressive:e4b",
+    "VladimirGav/gemma4-26b-16GB-VRAM-Uncensored",
+  ],
+  //"models": ["llama2:7b", "gemma4:e4b", "gemma4:26b"]
+  "gifs": {
+    "enable": [
+      "https://tenor.com/view/scrap-robotics-ftdh2-find-the-doge-heads-2-find-the-doge-heads-gif-12477929749404485952", // Clanker phone
+      "https://tenor.com/view/clanker-clankers-ai-robot-gif-5561694460311194172", // Running trough glass
+      "https://tenor.com/view/robot-activated-valorant-robot-turned-on-robot-booted-up-riot-games-gif-27413763", // Red eye
+      "https://tenor.com/view/bh187-star-wars-droids-droid-army-activate-gif-19623080", // battle droid activation
+      "https://tenor.com/view/abell46s-reface-robot-bot-bailando-gif-18911114", // Bender dance
+      "https://tenor.com/view/bella-eye-gif-12534210074486385531", // cat server robot
+      "https://tenor.com/view/general-grievous-star-wars-clone-wars-seperatists-villain-gif-24892836", // general grievious many sabers
+      "https://tenor.com/view/windows-starten-starting-windows-windows-7-windows-starting-home-premium-gif-4114252130509551445", // windows boots
+    ],
+    "disable": [
+      "https://tenor.com/view/clanka-clanker-droid-gta-gif-2671980220553869597", // GTA V Clankaaaaa
+      "https://tenor.com/view/star-wars-star-wars-meme-meme-commander-cody-stfu-gif-5309816589250938071", // Shooting droids
+      "https://tenor.com/view/robot-clanker-kung-fu-martial-arts-gif-8383749532773977149", // Kickflip
+      "https://tenor.com/view/robot-dies-explodes-shatters-race-gif-15341837348460387013", // robot falls and disintergrates
+      "https://tenor.com/view/mountain-metal-gromit-wallace-wallace-and-gromit-gif-15790724", // wallace and gromit cheeze robot
+      "https://tenor.com/view/pc-computer-shutting-down-off-windows-computer-gif-17192330", // windows 10 shutting down
+    ],
+    "whack": [
+      "https://tenor.com/view/slap-catch-robot-smack-whack-gif-12855851", //the bravest warriors whack
+      "https://tenor.com/view/whistlindiesel-whistlendeisel-robot-robot-fall-robot-fall-gif-15524778755285812085", // Optimus whacked in back of head
+      "https://tenor.com/view/ratchet-%26-clank-ratchet-ratchet-%26-clank-size-matters-size-matters-jumping-gif-15196879915639971956", // ratchet
+      "https://tenor.com/view/robots-the-mitchells-vs-the-machines-trailer-watching-car-hit-by-the-car-gif-21068049", // The Mitchells vs. the Machines car crash
+      "https://tenor.com/view/grievousbonk-grievous-bonk-starwars-clonewars-gif-21150454", // general grievious bonk
+      "https://tenor.com/view/futurama-leela-bender-punch-slap-gif-976590848628345426", // futurama slap
+    ],
+    "smart": [
+      "https://tenor.com/view/tokusatsu-winspector-robot-reading-read-gif-17018066", // robot at library
+      "https://tenor.com/view/clockwork-gears-brain-gif-16784329", // mechanical brain
+      "https://tenor.com/view/pengu-pudgy-penguin-pudgypenguins-ai-gif-12922732872775319926", // Pingwing AI brain
+      "https://tenor.com/view/verficacion-gif-21322574", // robot arm captha
+      "https://tenor.com/view/klei-oni-oxygen-not-included-dupe-rowan-gif-6479891577433792744", // Button
+    ],
+    "dumb": [
+      "https://tenor.com/view/sad-crying-tears-simpsons-short-circuit-gif-6983203869150131029", // Simpson robot melt
+      "https://tenor.com/view/tic-tac-toe-meme-robot-cheating-cheat-gif-16983247813571426973", // Tic tac toe
+      "https://tenor.com/view/idiot-robots-robot-mitchells-vs-the-machines-the-mitchells-vs-the-machines-gif-25258889", // The Mitchells vs. the Machines idiot
+      "https://tenor.com/view/captcha-robot-gif-21874274", // captha heart
+    ],
+  },
+}

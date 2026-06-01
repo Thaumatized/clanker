@@ -1,0 +1,6 @@
+venv
+.aider*
+
+clanker.db
+secrets.jsonc
+
