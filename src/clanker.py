@@ -20,13 +20,10 @@ CURRENT_MODEL = 'joe-speedboat/Gemma-4-Uncensored-HauhauCS-Aggressive:e4b'
 TARGET_HISTORY_LENGTH = 25
 ACTIVE_HISTORY_LENGTH = 25
 
-# --- Bot Behavior Flags ---
-# Default: Only respond to human users.
-RESPOND_TO_BOTS = False
-
 # --- Profile Loading ---
 PROFILE_NAME = os.environ.get('PROFILE', 'clanker')
 PROFILE_CONFIG_PATH = f'profiles/{PROFILE_NAME}.jsonc'
+
 
 # Load configuration from JSON file
 # NOTE: Using json5 to correctly handle JSONC format (with comments).
@@ -71,16 +68,24 @@ if not DISCORD_TOKEN:
 
 # Database setup
 DB_PATH = f'databases/{PROFILE_NAME}.sqlite'
+SHARED_DB_PATH = 'databases/shared.sqlite'
 
 def get_db_connection():
-    """Get a database connection."""
+    """Get a database connection for profile-specific data."""
     os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     return conn
 
+def get_shared_db_connection():
+    """Get a database connection for shared settings."""
+    os.makedirs(os.path.dirname(SHARED_DB_PATH), exist_ok=True)
+    conn = sqlite3.connect(SHARED_DB_PATH)
+    conn.row_factory = sqlite3.Row
+    return conn
+
 def init_db():
-    """Initialize the database with required tables."""
+    """Initialize the database with required tables (Profile-specific)."""
     conn = get_db_connection()
     cursor = conn.cursor()
 
@@ -105,8 +110,52 @@ def init_db():
     conn.commit()
     conn.close()
 
-# Initialize database on startup
+def init_shared_db():
+    """Initialize the shared database with global settings."""
+    conn = get_shared_db_connection()
+    cursor = conn.cursor()
+    
+    # Table for global bot-to-bot mode state
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS global_settings (
+            setting_key TEXT PRIMARY KEY,
+            setting_value TEXT
+        )
+    ''')
+    conn.commit()
+    conn.close()
+
+# Initialize databases on startup
 init_db()
+init_shared_db()
+
+# --- Bot State Management ---
+
+def get_bot_to_bot_state():
+    """Reads the bot-to-bot response state from the shared database."""
+    conn = get_shared_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('SELECT setting_value FROM global_settings WHERE setting_key = ?', ('bot_to_bot_enabled',))
+    row = cursor.fetchone()
+    conn.close()
+    
+    if row:
+        return row['setting_value'] == 'True'
+    # Default state if not found
+    return False
+
+def set_bot_to_bot_state(enabled: bool):
+    """Writes the bot-to-bot response state to the shared database."""
+    conn = get_shared_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('''
+        INSERT OR REPLACE INTO global_settings (setting_key, setting_value)
+        VALUES (?, ?)
+    ''', ('bot_to_bot_enabled', str(enabled).capitalize()))
+    conn.commit()
+    conn.close()
+
+get_bot_to_bot_state()
 
 # Intents setup
 intents = discord.Intents.default()
@@ -378,6 +427,7 @@ async def on_ready():
     print(f'Logged in as {client.user} (ID: {client.user.id})')
     print('------')
     print(f"Database initialized at {DB_PATH}")
+    print(f"Shared Settings initialized at {SHARED_DB_PATH}")
     print(f"Loaded Profile: {PROFILE_NAME}")
     print(f"System Prompt initialized.")
     
@@ -485,13 +535,15 @@ async def smart(interaction):
     except ValueError:
         await interaction.response.send_message("❌ Error: Current model not found in available list.", ephemeral=True)
 
-@client.tree.command(name='toggle-bot-to-bot', description='Toggles whether Clanker responds to messages from other bots.')
-async def toggle_bot_to_bot(interaction):
-    """Toggles the bot's response behavior for other bots."""
-    global RESPOND_TO_BOTS
-    RESPOND_TO_BOTS = not RESPOND_TO_BOTS
+@client.tree.command(name='bot-to-bot', description='Set whether Clanker responds to messages from other bots.')
+async def toggle_bot_to_bot(interaction, enable: bool = None):
+    """Toggles the bot's response behavior for other bots and saves state globally."""
+    old_state = get_bot_to_bot_state()
 
-    if RESPOND_TO_BOTS:
+    new_state = enable if (enable != None) else old_state
+    set_bot_to_bot_state(new_state)
+
+    if new_state:
         status_message = "✅ Clanker is now configured to respond to messages from other bots (Bot-to-Bot Mode)."
         gif_link = getGif("botToBotEnable")
     else:
@@ -499,6 +551,7 @@ async def toggle_bot_to_bot(interaction):
         gif_link = getGif("botToBotDisable")
         
     await interaction.response.send_message(f"{status_message}\n{gif_link}", ephemeral=False)
+
 
 
 # --- Message Event Handler ---
@@ -556,7 +609,7 @@ async def on_message(message):
     # Check if the message type is allowed based on the current mode
     is_bot_message = message.author.bot
     
-    if RESPOND_TO_BOTS:
+    if get_bot_to_bot_state():
         # Only respond to bots
         if not is_bot_message:
             return
@@ -599,8 +652,9 @@ if __name__ == "__main__":
     print(f"Max History Messages: {TARGET_HISTORY_LENGTH}")
     print(f"Model: {CURRENT_MODEL}")
     print(f"Available Models: {', '.join(AVAILABLE_MODELS)}")
-    print(f"Database: {DB_PATH}")
-    print(f"Bot responds to bots: {'Yes' if RESPOND_TO_BOTS else 'No'}")
+    print(f"Profile Database: {DB_PATH}")
+    print(f"Shared Settings Database: {SHARED_DB_PATH}")
+    print(f"Bot responds to bots: {'Yes' if get_bot_to_bot_state() else 'No'}")
     print("⚠️ Clanker is DISABLED by default in all channels.")
     print("Use /enable to enable Clanker in specific channels.")
     print("Use /disable to disable Clanker in specific channels.")
