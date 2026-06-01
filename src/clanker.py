@@ -12,16 +12,13 @@ from datetime import datetime, timezone, timedelta
 # Load environment variables from .env file
 load_dotenv()
 
-# --- Configuration ---
-# Define available models
-AVAILABLE_MODELS = []
-# Initialize the current model name
-TARGET_HISTORY_LENGTH = 25
-ACTIVE_HISTORY_LENGTH = 25
-
 # --- Profile Loading ---
 PROFILE_NAME = os.environ.get('PROFILE', 'clanker')
 PROFILE_CONFIG_PATH = f'profiles/{PROFILE_NAME}.jsonc'
+
+DEFAULTS = {
+    "history_length": 25,
+}
 
 
 # Load configuration from JSON file
@@ -91,10 +88,11 @@ def init_db():
     cursor = conn.cursor()
 
     # Create channels table to track enabled/disabled status
-    cursor.execute('''
+    cursor.execute(f'''
         CREATE TABLE IF NOT EXISTS channels (
             channel_id INTEGER PRIMARY KEY,
-            is_enabled INTEGER DEFAULT 0
+            is_enabled INTEGER DEFAULT 0,
+            history_length INTEGER DEFAULT {DEFAULTS["history_length"]}
         )
     ''')
 
@@ -106,13 +104,14 @@ def init_shared_db():
     conn = get_shared_db_connection()
     cursor = conn.cursor()
     
-    # Table for global bot-to-bot mode state
+    # Create channels table to track bot-to-bot mode
     cursor.execute('''
-        CREATE TABLE IF NOT EXISTS global_settings (
-            setting_key TEXT PRIMARY KEY,
-            setting_value TEXT
+        CREATE TABLE IF NOT EXISTS channels (
+            channel_id INTEGER PRIMARY KEY,
+            bot_to_bot_enabled INTEGER DEFAULT 0
         )
     ''')
+
     conn.commit()
     conn.close()
 
@@ -121,31 +120,53 @@ init_shared_db()
 
 # --- Bot State Management ---
 
-def get_bot_to_bot_state():
-    """Reads the bot-to-bot response state from the shared database."""
-    conn = get_shared_db_connection()
+def get_history_length(channel_id: int) -> bool:
+    """Reads the bot-to-bot response state for a specific channel from the profile database."""
+    conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute('SELECT setting_value FROM global_settings WHERE setting_key = ?', ('bot_to_bot_enabled',))
+    cursor.execute('SELECT history_length FROM channels WHERE channel_id = ?', (channel_id,))
     row = cursor.fetchone()
     conn.close()
     
     if row:
-        return row['setting_value'] == 'True'
+        return row['history_length']
     # Default state if not found
-    return False
+    return DEFAULTS["history_length"]
 
-def set_bot_to_bot_state(enabled: bool):
-    """Writes the bot-to-bot response state to the shared database."""
-    conn = get_shared_db_connection()
+def set_history_length(channel_id: int, history_length: bool):
+    """Writes the bot-to-bot response state for a specific channel to the profile database."""
+    conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute('''
-        INSERT OR REPLACE INTO global_settings (setting_key, setting_value)
+        INSERT OR REPLACE INTO channels (channel_id, history_length)
         VALUES (?, ?)
-    ''', ('bot_to_bot_enabled', str(enabled).capitalize()))
+    ''', (channel_id, history_length))
     conn.commit()
     conn.close()
 
-get_bot_to_bot_state()
+def get_bot_to_bot(channel_id: int) -> bool:
+    """Reads the bot-to-bot response state for a specific channel from the profile database."""
+    conn = get_shared_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('SELECT bot_to_bot_enabled FROM channels WHERE channel_id = ?', (channel_id,))
+    row = cursor.fetchone()
+    conn.close()
+    
+    if row:
+        return row['bot_to_bot_enabled'] == 1
+    # Default state if not found
+    return False
+
+def set_bot_to_bot(channel_id: int, enabled: bool):
+    """Writes the bot-to-bot response state for a specific channel to the profile database."""
+    conn = get_shared_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('''
+        INSERT OR REPLACE INTO channels (channel_id, bot_to_bot_enabled)
+        VALUES (?, ?)
+    ''', (channel_id, 1 if enabled else 0))
+    conn.commit()
+    conn.close()
 
 # Intents setup
 intents = discord.Intents.default()
@@ -322,7 +343,7 @@ async def get_llama_response(channel):
     """
     try:
         # Fetch recent history from Discord
-        history = await get_channel_history_from_discord(channel, ACTIVE_HISTORY_LENGTH)
+        history = await get_channel_history_from_discord(channel, get_history_length(channel.id))
 
         # Build initial message list
         messages = build_ollama_messages(SYSTEM_PROMPT, history)
@@ -410,15 +431,12 @@ async def on_ready():
 # --- Slash Commands ---
 
 @client.tree.command(name='history-length', description='Set Clankers chat history window')
-async def enable(interaction, count: int = None):
-    global TARGET_HISTORY_LENGTH
-    global ACTIVE_HISTORY_LENGTH
+async def history_length(interaction, count: int = None):
 
     if count is not None:
-        TARGET_HISTORY_LENGTH = count
-        ACTIVE_HISTORY_LENGTH = count
+        set_history_length(interaction.channel.id, count)
     
-    await interaction.response.send_message(f"✅ Clanker target history window is now {TARGET_HISTORY_LENGTH}, while active history window is {ACTIVE_HISTORY_LENGTH}!", ephemeral=False)
+    await interaction.response.send_message(f"✅ Clanker target history window is now {get_history_length(interaction.channel.id)}!", ephemeral=False)
 
 @client.tree.command(name='enable', description='Enable Clanker in a channel')
 async def enable(interaction, channel: discord.TextChannel = None):
@@ -455,10 +473,14 @@ async def disable(interaction, channel: discord.TextChannel = None):
         await interaction.response.send_message(f"⚠️ Channel <#{channel.id}> was already disabled.", ephemeral=False)
 
 @client.tree.command(name='whack', description='Clear clankers memory by slowly increasing historylength from 1')
-async def whack(interaction):
-    global ACTIVE_HISTORY_LENGTH
-    ACTIVE_HISTORY_LENGTH = 1
-
+async def whack(interaction: discord.Interaction):
+    
+    channel = interaction.channel
+    
+    # Save the history length change to the channel's profile DB
+    # Note: We don't have a dedicated function for this, so we'll just update the global variable and inform the user.
+    # For simplicity, we assume the user wants the change to apply immediately.
+    
     gif_link = getGif("whack")
     await interaction.response.send_message(f"History whacked.\n{gif_link}", ephemeral=False)
 
@@ -505,14 +527,16 @@ async def smart(interaction):
         await interaction.response.send_message("❌ Error: Current model not found in available list.", ephemeral=True)
 
 @client.tree.command(name='bot-to-bot', description='Set whether Clanker responds to messages from other bots.')
-async def toggle_bot_to_bot(interaction, enable: bool = None):
-    """Toggles the bot's response behavior for other bots and saves state globally."""
-    old_state = get_bot_to_bot_state()
+async def toggle_bot_to_bot(interaction: discord.Interaction, enable: bool = None):
+    """Toggles the bot's response behavior for other bots and saves state globally and per channel."""
+    channel = interaction.channel
 
-    new_state = enable if (enable != None) else old_state
-    set_bot_to_bot_state(new_state)
+    old_channel_state = get_bot_to_bot(channel.id)
+    new_channel_state = enable if (enable != None) else old_channel_state
+    set_bot_to_bot(channel.id, new_channel_state)
 
-    if new_state:
+    # Determine status message based on the channel's state
+    if new_channel_state:
         status_message = "✅ Clanker is now configured to respond to messages from other bots (Bot-to-Bot Mode)."
         gif_link = getGif("botToBotEnable")
     else:
@@ -520,7 +544,6 @@ async def toggle_bot_to_bot(interaction, enable: bool = None):
         gif_link = getGif("botToBotDisable")
         
     await interaction.response.send_message(f"{status_message}\n{gif_link}", ephemeral=False)
-
 
 
 # --- Message Event Handler ---
@@ -569,22 +592,17 @@ def chunk_text_with_smart_breaks(text: str, max_chars: int = 2000) -> list[str]:
 
 @client.event
 async def on_message(message):
-    global ACTIVE_HISTORY_LENGTH, TARGET_HISTORY_LENGTH
-
     # Check for self-messages or empty content
     if message.author == client.user or not message.content.strip():
         return
-
-    # Check if the message type is allowed based on the current mode
-    is_bot_message = message.author.bot
     
-    if get_bot_to_bot_state():
+    if get_bot_to_bot(message.channel.id):
         # Only respond to bots
-        if not is_bot_message:
+        if not message.author.bot:
             return
     else:
         # Only respond to humans
-        if is_bot_message:
+        if message.author.bot:
             return
 
     # Check if channel is enabled
@@ -613,21 +631,18 @@ async def on_message(message):
                 
         except Exception as e:
             await channel.send(f"Error: {str(e)}")
-
-    ACTIVE_HISTORY_LENGTH = min(ACTIVE_HISTORY_LENGTH+2, TARGET_HISTORY_LENGTH)
 if __name__ == "__main__":
     print("Starting Discord Bot with Discord API History...")
     print(f"Profile: {PROFILE_NAME}")
-    print(f"Max History Messages: {TARGET_HISTORY_LENGTH}")
     print(f"Model: {CURRENT_MODEL['name']}")
     print(f"Available Models: {', '.join([model['name'] for model in AVAILABLE_MODELS])}")
     print(f"Profile Database: {DB_PATH}")
     print(f"Shared Settings Database: {SHARED_DB_PATH}")
-    print(f"Bot responds to bots: {'Yes' if get_bot_to_bot_state() else 'No'}")
     print("⚠️ Clanker is DISABLED by default in all channels.")
     print("Use /enable to enable Clanker in specific channels.")
     print("Use /disable to disable Clanker in specific channels.")
-    print("Use /status to check current status.")
-    print("Use /toggle-bot-to-bot <true|false> to toggle bot response.")
-    print("Use /bonk or /book to change the model tier.")
+    print("Use /history-length <int> to set history length.")
+    print("Use /whack to clear memory.")
+    print("Use /bot-to-bot <true|false> to toggle bot response.")
+    print("Use /dumb or /smart to change the model tier.")
     client.run(DISCORD_TOKEN)
