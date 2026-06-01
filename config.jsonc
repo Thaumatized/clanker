@@ -1,8 +1,17 @@
 {
   "models": [
-    "llama2-uncensored",
-    "joe-speedboat/Gemma-4-Uncensored-HauhauCS-Aggressive:e4b",
-    "VladimirGav/gemma4-26b-16GB-VRAM-Uncensored",
+    {
+      "name": "llama2-uncensored",
+      "toolCalls": false,
+    },
+    {
+      "name": "joe-speedboat/Gemma-4-Uncensored-HauhauCS-Aggressive:e4b",
+      "toolCalls": true,
+    },
+    {
+      "name": "VladimirGav/gemma4-26b-16GB-VRAM-Uncensored",
+      "toolCalls": true,
+    },
   ],
   //"models": ["llama2:7b", "gemma4:e4b", "gemma4:26b"]
   "gifs": {
@@ -65,7 +74,6 @@
       "https://tenor.com/view/i-feel-sad-the-mitchells-vs-the-machines-im-gonna-cry-a-tear-in-my-eye-mitchells-vs-machines-gif-21432321", //The Mitchells vs. the Machines drwaing cry face
       "https://tenor.com/view/do-you-have-an-off-button-three-robots-love-death-and-robots-how-do-i-turn-you-off-shut-up-gif-21999490", // Love, Death and Robots do you have an off button
       "https://tenor.com/view/murder-drones-serial-designation-n-cute-shy-nervous-gif-27007877", // Murder droins point fingers together
-
     ],
   },
 }

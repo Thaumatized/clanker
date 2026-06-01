@@ -116,7 +116,6 @@ def init_shared_db():
     conn.commit()
     conn.close()
 
-# Initialize databases on startup
 init_db()
 init_shared_db()
 
@@ -335,9 +334,9 @@ async def get_llama_response(channel):
             # Run the synchronous ollama call in a thread pool
             response = await asyncio.to_thread(
                 ollama.chat, 
-                model=CURRENT_MODEL, 
+                model=CURRENT_MODEL['name'],
                 messages=messages,
-                tools=tools
+                tools= tools if CURRENT_MODEL['toolCalls'] else None
             )
 
             message = response['message']
@@ -474,13 +473,13 @@ async def dumb(interaction):
         new_index = current_index - 1
         
         if new_index < 0:
-            await interaction.response.send_message(f"⚠️ Clanker is already using the lowest intelligence model: **{CURRENT_MODEL}**.", ephemeral=True)
+            await interaction.response.send_message(f"⚠️ Clanker is already using the lowest intelligence model: **{CURRENT_MODEL['name']}**.", ephemeral=False)
             return
         
         new_model = AVAILABLE_MODELS[new_index]
         CURRENT_MODEL = new_model
         gif_link = getGif("dumb")
-        await interaction.response.send_message(f"⚡️ Clanker's model has been switched to a lower intelligence tier: **{CURRENT_MODEL}**!\n{gif_link}", ephemeral=False)
+        await interaction.response.send_message(f"⚡️ Clanker's model has been switched to a lower intelligence tier: **{CURRENT_MODEL['name']}**!\n{gif_link}", ephemeral=False)
     except ValueError:
         await interaction.response.send_message("❌ Error: Current model not found in available list.", ephemeral=True)
 
@@ -495,13 +494,13 @@ async def smart(interaction):
         new_index = current_index + 1
         
         if new_index >= len(AVAILABLE_MODELS):
-            await interaction.response.send_message(f"⚠️ Clanker is already using the highest intelligence model: **{CURRENT_MODEL}**.", ephemeral=True)
+            await interaction.response.send_message(f"⚠️ Clanker is already using the highest intelligence model: **{CURRENT_MODEL['name']}**.", ephemeral=False)
             return
         
         new_model = AVAILABLE_MODELS[new_index]
         CURRENT_MODEL = new_model
         gif_link = getGif("smart")
-        await interaction.response.send_message(f"📚 Clanker's model has been switched to a higher intelligence tier: **{CURRENT_MODEL}**!\n{gif_link}", ephemeral=False)
+        await interaction.response.send_message(f"📚 Clanker's model has been switched to a higher intelligence tier: **{CURRENT_MODEL['name']}**!\n{gif_link}", ephemeral=False)
     except ValueError:
         await interaction.response.send_message("❌ Error: Current model not found in available list.", ephemeral=True)
 
@@ -620,8 +619,8 @@ if __name__ == "__main__":
     print("Starting Discord Bot with Discord API History...")
     print(f"Profile: {PROFILE_NAME}")
     print(f"Max History Messages: {TARGET_HISTORY_LENGTH}")
-    print(f"Model: {CURRENT_MODEL}")
-    print(f"Available Models: {', '.join(AVAILABLE_MODELS)}")
+    print(f"Model: {CURRENT_MODEL['name']}")
+    print(f"Available Models: {', '.join([model['name'] for model in AVAILABLE_MODELS])}")
     print(f"Profile Database: {DB_PATH}")
     print(f"Shared Settings Database: {SHARED_DB_PATH}")
     print(f"Bot responds to bots: {'Yes' if get_bot_to_bot_state() else 'No'}")
