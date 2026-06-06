@@ -7,7 +7,8 @@ from dotenv import load_dotenv
 from discord.ext import commands
 import random # Added random import
 import json5 # Using the pyjson5 library
-from datetime import datetime, timezone, timedelta
+from datetime import datetime
+from zoneinfo import ZoneInfo
 
 # Load environment variables from .env file
 load_dotenv()
@@ -209,56 +210,44 @@ client = commands.Bot(command_prefix=None, intents=intents)
 
 # --- Tool Functions ---
 
-def get_datetime(timezonestring="UTC+00:00"):
+def get_datetime(timezone_name: str) -> str:
     """
-    Returns the current datetime for a given UTC offset string.
-    Format: UTC[+/-]HH:MM (e.g., "UTC+08:45")
+    Returns the current localized datetime for a given IANA time zone name,
+    correctly accounting for DST transitions.
+
+    :param timezone_name: The full IANA name of the time zone (e.g., "America/Vancouver").
+    :return: Formatted string of the current date, time, and timezone name.
     """
     try:
-        # Remove "UTC" prefix and split by +/-
-        # We look for the sign position to separate hours and minutes
-        if timezonestring.startswith("UTC+"):
-            sign = 1
-            time_part = timezonestring[4:]
-        elif timezonestring.startswith("UTC-"):
-            sign = -1
-            time_part = timezonestring[4:]
-        else:
-            raise ValueError("Invalid value provided, missing sign after UTC")
-        
-        hours, minutes = map(int, time_part.split(":"))
-        
-        offset = timedelta(hours=hours, minutes=minutes)
-        if sign == -1:
-            offset = -offset
-            
-        tz = timezone(offset)
-        return datetime.now(tz).strftime("%Y-%m-%d %H:%M:%S") + f" {timezonestring}"
-        
+        tz = ZoneInfo(timezone_name)
+        now = datetime.now(tz)
+        return now.strftime("%Y-%m-%d %H:%M:%S") + f" ({timezone_name})"
+    
     except Exception as e:
-        print(f"get_datetime exception {e}")
-        # If anything fails, just return current UTC time
-        return datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
+        # Handle cases where the time zone name is invalid
+        print(f"Error fetching time for {timezone_name}: {e}")
+        return datetime.now(ZoneInfo("UTC")).strftime("%Y-%m-%d %H:%M:%S (UTC)")
 
 tools = [
     {
         "type": "function",
         "function": {
             "name": "get_datetime",
-            "description": "Returns the current date and time in %Y-%m-%d %H:%M:%S TIMEZONE format.",
+            "description": "Returns the current, localized date and time for a given time zone name, correctly accounting for Daylight Saving Time (DST) and all time zone rules.",
             "parameters": {
                 'type': 'object',
                 'properties': {
                     'timezone': {
-                    'type': 'string',
-                    'description': 'timezone in the format UTC[+/-]HH:MM. For example, Ecula would be "UTC+08:45" and Finnish winter time would be "UTC+03:00". Defaults to UTC+00:00',
-                    },
+                        'type': 'string',
+                        "description": "The full IANA time zone name (e.g., 'America/Los_Angeles', 'Europe/London', 'Asia/Tokyo'). This name allows the function to correctly calculate DST shifts."
+                    }
                 },
-                'required': [],
+                'required': ['timezone'] 
             }
         }
     }
 ]
+
 
 
 # --- Helper Functions ---
@@ -412,8 +401,8 @@ async def get_llama_response(channel):
                     function_args = tool_call['function']['arguments']
                     
                     if function_name == 'get_datetime':
-                        print(f"Getting time for zone {function_args.get('timezone', "UTC+00:00")}")
-                        tool_output = get_datetime(function_args.get('timezone', "UTC+00:00"))
+                        print(f"Getting time for zone {function_args.get('timezone', "UTC")}")
+                        tool_output = get_datetime(function_args.get('timezone', "UTC"))
                         
                         # --- STEP 4: Record the tool call and its result in history ---
                         
