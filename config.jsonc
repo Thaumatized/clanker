@@ -1,42 +1,44 @@
 {
-  "models": [
-    {
-      "name": "llama2-uncensored",
-      "toolCalls": false,
-    },
-    {
-      "name": "joe-speedboat/Gemma-4-Uncensored-HauhauCS-Aggressive:e4b",
-      "toolCalls": true,
-    },
-    {
-      "name": "maxwellb/gemma4-12b-it-oym:latest",
-      "toolCalls": true,
-    },
-    {
-      "name": "VladimirGav/gemma4-26b-16GB-VRAM-Uncensored",
-      "toolCalls": true,
-    },
-  ],
-  /*
-    "models": [
-    {
-      "name": "llama2:7b",
-      "toolCalls": false,
-    },
-    {
-      "name": "gemma4:e4b",
-      "toolCalls": true,
-    },
-    {
-      "name": "gemma4:12b",
-      "toolCalls": true,
-    },
-    {
-      "name": "gemma4:26b",
-      "toolCalls": true,
-    },
-  ],
-  */
+  "models":
+  {
+    "default": "gemma4:e4b",
+    "uncensored":[
+      {
+        "name": "llama2-uncensored",
+        "toolCalls": false,
+      },
+      {
+        "name": "joe-speedboat/Gemma-4-Uncensored-HauhauCS-Aggressive:e4b",
+        "toolCalls": true,
+      },
+      {
+        "name": "maxwellb/gemma4-12b-it-oym:latest",
+        "toolCalls": true,
+      },
+      {
+        "name": "VladimirGav/gemma4-26b-16GB-VRAM-Uncensored",
+        "toolCalls": true,
+      },
+    ],
+    "censored": [
+      {
+        "name": "llama2:7b",
+        "toolCalls": false,
+      },
+      {
+        "name": "gemma4:e4b",
+        "toolCalls": true,
+      },
+      {
+        "name": "gemma4:12b",
+        "toolCalls": true,
+      },
+      {
+        "name": "gemma4:26b",
+        "toolCalls": true,
+      },
+    ],
+  },
   "gifs": {
     "enable": [
       "https://tenor.com/view/scrap-robotics-ftdh2-find-the-doge-heads-2-find-the-doge-heads-gif-12477929749404485952", // Clanker phone

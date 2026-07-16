@@ -1,4 +1,4 @@
 discord.py>=2.3.0
 ollama>=0.1.0
 python-dotenv>=1.0.0
-pyjson5
+json5

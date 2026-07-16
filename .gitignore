@@ -1,6 +1,5 @@
 venv
-.aider*
-!.aider.conf.yml
+__pycache__
 
 databases
 secrets.jsonc
