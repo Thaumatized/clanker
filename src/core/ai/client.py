@@ -15,11 +15,11 @@ class OllamaClient:
         personality = get_personality()
         PERSONALITY_PROMPT = personality.get("personalityPrompt", "You are complains-of-missing-personality-prompt-6000 and your primary directive is to complain of missing a personality prompt.")
         self.system_prompt = f"""
-            {PERSONALITY_PROMPT}
-            You see messages in the format:
-            <userid> username: message                                                                                                                                       
-            You do not prepend your responses with userid or username. This is handled by external systems.
-        """ 
+{PERSONALITY_PROMPT}
+You see messages in the format:
+<userid> username: message                                                                                                                                       
+You do not prepend your responses with userid or username. This is handled by external systems.
+""" 
 
     async def generate(self, message_history: list, model: dict) -> str:
     
