@@ -74,6 +74,7 @@ async def get_channel_history(channel: discord.channel, newest_message_id: int |
                 continue
 
             if whack_id is not None and msg.id <= whack_id:
+                print(whack_id)
                 break
 
             history_messages.append(msg)

@@ -40,11 +40,11 @@ class GeneralCommands(commands.Cog):
         gif_link = get_gif_url("disable")
         await interaction.response.send_message(f"🚫 Clanker is now **disabled** in <#{channel.id}>!\n{gif_link}", ephemeral=False)
 
-    @app_commands.command(name='whack', description='Clear clankers memory by slowly increasing historylength from 1')
+    @app_commands.command(name='whack', description='Clear clankers memory of the channel')
     async def whack(self, interaction: discord.Interaction):
         response_message = await interaction.response.send_message(f"History whacked.\n{get_gif_url('whack')}", ephemeral=False)
 
-        set_whack(interaction.channel_id, response_message.id)
+        set_whack(interaction.channel_id, response_message.message_id)
 
     @app_commands.command(name='dumb', description='Change Clanker\'s model to a lower intelligence model.')
     async def dumb(self, interaction):
