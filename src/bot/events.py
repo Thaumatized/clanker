@@ -6,10 +6,10 @@ from core.db.manager import get_bot_to_bot, is_channel_enabled, get_model
 
 # Use a Cog to encapsulate all bot functionality (events and commands)
 class EventHandlers(commands.Cog):
-    def __init__(self, bot):
+    def __init__(self, bot, ollama_client):
         self.bot = bot
         # Initialize the AI client instance here
-        self.ollama_client = OllamaClient()
+        self.ollama_client = ollama_client
 
     @commands.Cog.listener()
     async def on_ready(self):
@@ -54,7 +54,7 @@ class EventHandlers(commands.Cog):
 
                 ollama_message_history = discord_history_to_ollama(discord_message_history, self.bot.user.id)
 
-                response = await self.ollama_client.generate(message_history=ollama_message_history, model=get_model(message.channel.id))
+                response = await self.ollama_client.generate(message_history=ollama_message_history, message=message, model=get_model(message.channel.id))
 
                 print(f"Response: {response}")
 

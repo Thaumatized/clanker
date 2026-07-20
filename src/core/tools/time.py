@@ -14,11 +14,8 @@ def get_datetime(timezone: str) -> str:
         tz = ZoneInfo(timezone)
         now = datetime.now(tz)
         return now.strftime("%Y-%m-%d %H:%M:%S") + f" ({timezone})"
-    
     except Exception as e:
-        # Handle cases where the time zone name is invalid
-        print(f"Error fetching time for {timezone}: {e}")
-        return datetime.now(ZoneInfo("UTC")).strftime("%Y-%m-%d %H:%M:%S (UTC)")
+        return f"ERROR: Error fetching time for {timezone}: {e}"
     
 get_datetime_config = {
         "type": "function",

@@ -11,8 +11,6 @@ CURRENT_MODEL = None # This should be initialized by srcold/config.py, but kept 
 class GeneralCommands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        # Initialize the client instance when the cog is loaded
-        self.ai_client = OllamaClient()
         
     @app_commands.command(name='history-length', description='Set Clankers chat history window')
     async def history_length(self, interaction, count: int = None):

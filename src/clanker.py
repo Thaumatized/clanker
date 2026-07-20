@@ -5,6 +5,7 @@ from config import get_secret
 from bot.events import EventHandlers
 from bot.commands.general import GeneralCommands
 from core.db.manager import initialize_all_db
+from core.ai.client import OllamaClient
 
 # Discord configuration
 TOKEN = get_secret("discordToken")
@@ -16,13 +17,13 @@ intents.guilds = True # Required for guild-specific events and context
 
 # Initialize the bot
 bot = commands.Bot(command_prefix=None, intents=intents)
+ollama_client = OllamaClient(bot=bot)
 
 async def main():
     initialize_all_db()
 
-    await bot.add_cog(EventHandlers(bot))
+    await bot.add_cog(EventHandlers(bot, ollama_client=ollama_client))
     await bot.add_cog(GeneralCommands(bot))
-
 
     # Start the bot
     async with bot:

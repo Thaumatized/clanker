@@ -1,6 +1,4 @@
-# AI client for interacting with llama.cpp
-
-import ollama
+import discord
 from ollama import AsyncClient
 # Prompt management for the AI system.
 from config import get_personality
@@ -8,9 +6,10 @@ from ..tools.tool_router import toolConfigurations, route_tool_calls
 
 
 class OllamaClient:
-    def __init__(self, api_url: str = "http://localhost:11434"):
+    def __init__(self, bot, api_url: str = "http://localhost:11434"):
         self.api_url = api_url
         self.client = AsyncClient(host=api_url)
+        self.bot = bot
 
         personality = get_personality()
         PERSONALITY_PROMPT = personality.get("personalityPrompt", "You are complains-of-missing-personality-prompt-6000 and your primary directive is to complain of missing a personality prompt.")
@@ -21,7 +20,7 @@ You see messages in the format:
 You do not prepend your responses with userid or username. This is handled by external systems.
 """ 
 
-    async def generate(self, message_history: list, model: dict) -> str:
+    async def generate(self, message_history: list, message: discord.message, model: dict) -> str:
     
         try:
             print(f"--- Ollama Call Start ---")
@@ -44,7 +43,7 @@ You do not prepend your responses with userid or username. This is handled by ex
                         "tool_calls": tool_calls
                     })
 
-                    tool_outputs = route_tool_calls(tool_calls=tool_calls)
+                    tool_outputs = await route_tool_calls(bot=self.bot, message=message, tool_calls=tool_calls)
                     for output in tool_outputs:
                         print(f"tool output: {output}")
                         messages.append(output)
