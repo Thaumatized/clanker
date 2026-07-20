@@ -1,6 +1,7 @@
 import os
 import json5
 from typing import Any, Dict, Optional
+import random
 
 # Load the base configuration from config.jsonc
 def load_base_config() -> Dict[str, Any]:
@@ -66,8 +67,8 @@ def get_model_info(model_type: str, index: int = 0) -> Dict[str, Any]:
         return models[index]
     return {}
 
-def get_gif_url(category: str, index: int = 0) -> str:
+def get_gif_url(category: str) -> str:
     gifs = BASE_CONFIG.get("gifs", {}).get(category, [])
-    if 0 <= index < len(gifs):
-        return gifs[index]
+    if gifs:
+        return random.choice(gifs)
     return ""
