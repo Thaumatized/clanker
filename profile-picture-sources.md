@@ -2,4 +2,4 @@ Image src https://en.wikipedia.org/wiki/Clanker#/media/File:2021-10-31_10-11-37_
 
 https://cults3d.com/en/3d-model/game/assaultron-from-fallout-pearl_fleur
 
-pip install -r requirements.txt
+https://www.reddit.com/r/tf2/comments/ydl77/getting_a_postkill_taunt_from_the_ai_is/
