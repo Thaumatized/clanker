@@ -94,5 +94,5 @@ Clanker uses Discord Slash Commands for management.
 ## Vibecoding
 
 Claude code set to use local models trough ollama. launch ollama, then launch claude code
-> ollama
-> claude
+> ollama  
+> claude  
