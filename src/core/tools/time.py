@@ -1,4 +1,3 @@
-
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
@@ -13,7 +12,7 @@ def get_datetime(timezone: str) -> str:
     try:
         tz = ZoneInfo(timezone)
         now = datetime.now(tz)
-        return now.strftime("%Y-%m-%d %H:%M:%S") + f" ({timezone})"
+        return now.isoformat()
     except Exception as e:
         return f"ERROR: Error fetching time for {timezone}: {e}"
     
